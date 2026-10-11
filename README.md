@@ -13,6 +13,12 @@ a two-line synopsis and a Gemini **WATCH / SKIP** verdict with a one-line reason
 
 Nine checks + the Cut: [docs/nine-checks.md](docs/nine-checks.md)
 
+## Screenshots
+
+| Home | One week's picks |
+|---|---|
+| ![Home](docs/dashboard.png) | ![Week page](docs/week-page.png) |
+
 ## How a Friday run works (`src/lib/pipeline.ts`)
 
 1. **Vercel Cron** hits `/api/cron/digest` at `30 12 * * 5` (UTC) = Friday 18:00 IST.
@@ -35,10 +41,11 @@ No public source has the exact day a title landed on an app in India. So every t
 catalogue at last Friday's snapshot). The first real run sets the baseline snapshot.
 
 ## Pages
-- `/`: next send time, Preview this week (sends nothing), Send digest now, run history and cost
+- `/`: next send time, poster grid of this week's WATCH picks, Preview (sends nothing) / Send to Telegram now
 - `/runs/[id]`: every title with its verdict, plus what the code filter dropped and why
+- `/history`: every digest and preview
 - `/settings`: genres, languages, apps, never-show words, notes for the recommender
-- `/setup`: connection status and the Telegram webhook button
+- `/setup`: connection checklist and the Telegram reconnect button
 
 Telegram commands: `/start` (connects the chat), `/now` (send this week's digest now), `/help`.
 
