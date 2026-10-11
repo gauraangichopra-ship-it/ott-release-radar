@@ -1,16 +1,20 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-brand: #1d2340;
-  --color-accent: #e8604c;
-  --color-page: #f5f6fa;
+  --color-brand: #15182b;
+  --color-brand-2: #262a48;
+  --color-accent: #ff5a3c;
+  --color-accent-soft: #fff0ec;
+  --color-page: #f6f5f2;
   --color-card: #ffffff;
-  --color-line: #e3e6ef;
-  --color-ink: #1c2541;
-  --color-muted: #6b7286;
-  --color-ok: #2f7a4f;
+  --color-line: #e8e6e1;
+  --color-ink: #1b1d2a;
+  --color-muted: #6c6f7d;
+  --color-ok: #1f8a4c;
+  --color-ok-soft: #e7f6ed;
   --color-warn: #b7791f;
-  --color-bad: #b23b3b;
+  --color-bad: #c2412d;
+  --color-bad-soft: #fdecea;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -20,3 +24,6 @@ body {
   color: var(--color-ink);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/* Two-line clamp for synopses on cards */
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

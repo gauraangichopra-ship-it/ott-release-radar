@@ -67,6 +67,7 @@ export type Details = {
   production_companies?: { name: string }[];
   vote_average?: number;
   vote_count?: number;
+  poster_path?: string | null;
 };
 
 export function details(media: Media, id: number): Promise<Details> {

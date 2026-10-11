@@ -78,16 +78,21 @@ export type Item = {
   reason: string | null;
   delivered: boolean;
   feedback: string | null;
+  poster_path: string | null;
 };
 
 export function runItems(runId: number) {
   return query<Item>(
     `select id, media_type, tmdb_id, title, year, platforms, label, genres, language, length_text, overview, synopsis,
-            verdict, score, reason, delivered, feedback
+            verdict, score, reason, delivered, feedback, poster_path
      from items where run_id = $1
      order by case verdict when 'WATCH' then 0 when 'SKIP' then 1 else 2 end, score desc nulls last, title`,
     [runId],
   );
+}
+
+export async function latestDelivered() {
+  return maybeOne<Run>(`select ${RUN_COLS} from runs where status in ('sent','empty') order by id desc limit 1`);
 }
 
 export async function totals() {

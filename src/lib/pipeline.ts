@@ -195,10 +195,10 @@ export async function runRadar(trigger: Trigger): Promise<{ runId: number; statu
     const items: DigestItem[] = [];
     for (const k of kept) {
       const row = await one<{ id: number }>(
-        `insert into items (run_id, media_type, tmdb_id, title, year, platforms, label, genres, language, length_text, overview, synopsis, verdict, score, reason)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning id`,
+        `insert into items (run_id, media_type, tmdb_id, title, year, platforms, label, genres, language, length_text, overview, synopsis, verdict, score, reason, poster_path)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) returning id`,
         [run.id, k.media, k.id, k.title, k.year, k.platforms, k.label, k.genres, k.language, k.lengthText, k.overview,
-         k.j?.synopsis ?? null, k.j?.verdict ?? null, k.j?.score ?? null, k.j?.reason ?? null],
+         k.j?.synopsis ?? null, k.j?.verdict ?? null, k.j?.score ?? null, k.j?.reason ?? null, k.d.poster_path ?? null],
       );
       items.push({
         id: row.id, title: k.title, year: k.year, platforms: k.platforms, label: k.label, genres: k.genres,

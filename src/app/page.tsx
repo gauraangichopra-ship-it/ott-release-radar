@@ -1,78 +1,93 @@
 import Link from "next/link";
 import { previewNow, sendNow } from "./actions";
 import { SubmitButton } from "@/components/SubmitButton";
-import { Card, Empty, Stat, StatusPill, inr, istTime } from "@/components/ui";
-import { getProfile, listRuns, nextFridayRun, totals } from "@/lib/queries";
+import { Card, Empty, PickCard, Stat, inr, istDay } from "@/components/ui";
+import { getProfile, latestDelivered, listRuns, nextFridayRun, runItems, totals } from "@/lib/queries";
 import { GENRES, LANGUAGES, PROVIDERS } from "@/lib/prefs";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export default async function Dashboard() {
-  const [profile, runs, t] = await Promise.all([getProfile(), listRuns(), totals()]);
+function countdown(to: Date) {
+  const days = Math.floor((to.getTime() - Date.now()) / 86_400_000);
+  if (days <= 0) return "today";
+  return days === 1 ? "tomorrow" : `in ${days} days`;
+}
+
+export default async function Home() {
+  const [profile, t, last, runs] = await Promise.all([getProfile(), totals(), latestDelivered(), listRuns(1)]);
+  const shown = last ?? runs[0] ?? null;
+  const items = shown ? await runItems(shown.id) : [];
+  const watch = items.filter((i) => i.verdict === "WATCH");
+  const next = nextFridayRun();
+  const nextText = next.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   const tapped = t.watching + t.not_for_me;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">New This Week, every Friday</h1>
-          <p className="text-sm text-muted mt-1">
-            Next digest: <b className="text-ink">{istTime(nextFridayRun())}</b> on Telegram
-            {profile.chat_id ? "" : <> · <Link href="/setup" className="text-bad underline">Telegram not connected yet</Link></>}
-          </p>
+      {/* Hero */}
+      <section className="rounded-3xl bg-gradient-to-br from-brand via-brand-2 to-[#3b2a52] text-white p-6 sm:p-8 relative overflow-hidden">
+        <div className="absolute -right-6 -top-6 text-[140px] opacity-10 select-none">🎬</div>
+        <p className="text-white/70 text-sm">Hi Naman 👋</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold mt-1 max-w-xl leading-tight">
+          Your next &ldquo;New This Week&rdquo; digest arrives {countdown(next)}
+        </h1>
+        <p className="text-white/80 mt-2">📅 {nextText} · on Telegram</p>
+        <div className="flex flex-wrap items-center gap-2 mt-4 text-sm">
+          {profile.chat_id
+            ? <span className="bg-white/15 rounded-full px-3 py-1">✅ Telegram connected</span>
+            : <Link href="/setup" className="bg-accent rounded-full px-3 py-1 font-medium">⚠️ Connect Telegram first</Link>}
+          <span className="bg-white/15 rounded-full px-3 py-1">{profile.providers.map((p) => PROVIDERS[p]?.name ?? p).join(" · ")}</span>
         </div>
-        <div className="flex gap-2">
-          <form action={previewNow}><SubmitButton tone="secondary">Preview this week</SubmitButton></form>
-          <form action={sendNow}><SubmitButton>Send digest now</SubmitButton></form>
+        <div className="flex flex-wrap gap-2 mt-6">
+          <form action={previewNow}>
+            <SubmitButton tone="secondary" pendingText="Finding this week's releases… (≈1 min)">👀 Preview this week</SubmitButton>
+          </form>
+          <form action={sendNow}>
+            <SubmitButton pendingText="Sending to Telegram… (≈1 min)" confirm="Send this week's digest to Telegram right now? Titles already sent won't be repeated.">
+              📨 Send to Telegram now
+            </SubmitButton>
+          </form>
         </div>
-      </div>
+        <p className="text-xs text-white/60 mt-2">Preview shows the picks here without messaging you. Nothing is ever sent twice.</p>
+      </section>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Digests sent" value={t.sent} sub={`${t.runs} runs incl. previews`} />
-        <Stat label="Titles delivered" value={t.delivered} sub="never repeated" />
-        <Stat label="Watching taps" value={tapped ? `${t.watching}/${tapped}` : "—"} sub={`${t.not_for_me} "not for me"`} />
-        <Stat label="Gemini cost to date" value={inr(t.cost)} sub={`snapshot: ${t.snapshot} titles tracked`} />
-      </div>
-
-      <Card title="Taste profile">
-        <div className="text-sm flex flex-wrap gap-x-6 gap-y-1">
-          <span><span className="text-muted">Genres:</span> {profile.genres.map((g) => GENRES[g]?.label ?? g).join(", ")}</span>
-          <span><span className="text-muted">Languages:</span> {profile.languages.map((l) => LANGUAGES[l] ?? l).join(", ")}</span>
-          <span><span className="text-muted">Apps:</span> {profile.providers.map((p) => PROVIDERS[p]?.name ?? p).join(", ")}</span>
-          <Link href="/settings" className="underline text-muted">edit</Link>
-        </div>
+      {/* Latest picks */}
+      <Card
+        title={shown ? <>🍿 {last ? "Last digest" : "Latest preview"} · {istDay(shown.window_start)} – {istDay(shown.window_end)}</> : "🍿 This week's picks"}
+        action={shown && <Link href={`/runs/${shown.id}`} className="text-sm text-accent font-medium hover:underline">See all {items.length} →</Link>}>
+        {!shown ? (
+          <Empty>No digest yet. Click <b>Preview this week</b> above to see what&apos;s new on your apps.</Empty>
+        ) : watch.length === 0 ? (
+          <Empty icon="😴">Nothing worth watching that week{items.length ? ` (${items.length} titles checked, all skips)` : ""}.</Empty>
+        ) : (
+          <>
+            <p className="text-sm text-muted -mt-2 mb-4">
+              <b className="text-ink">{watch.length} worth watching</b> out of {items.length} that matched your taste
+              {shown.found ? ` (${shown.found} new titles checked)` : ""}.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {watch.map((it) => <PickCard key={it.id} it={it} />)}
+            </div>
+          </>
+        )}
       </Card>
 
-      <Card title="Runs">
-        {runs.length === 0 ? (
-          <Empty>No runs yet. Click <b>Preview this week</b> to see what this Friday&apos;s digest would contain.</Empty>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted">
-                <tr className="border-b border-line">
-                  <th className="py-2 pr-3">When</th><th className="pr-3">Trigger</th><th className="pr-3">Status</th>
-                  <th className="pr-3">Week</th><th className="pr-3 text-right">Found → kept</th>
-                  <th className="pr-3 text-right">Watch / skip</th><th className="text-right">Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.map((r) => (
-                  <tr key={r.id} className="border-b border-line last:border-0 hover:bg-page">
-                    <td className="py-2 pr-3"><Link href={`/runs/${r.id}`} className="underline">{istTime(r.started_at)}</Link></td>
-                    <td className="pr-3">{r.trigger}</td>
-                    <td className="pr-3"><StatusPill status={r.status} /></td>
-                    <td className="pr-3 whitespace-nowrap">{r.window_start} → {r.window_end}</td>
-                    <td className="pr-3 text-right tabular-nums">{r.found} → {r.kept}</td>
-                    <td className="pr-3 text-right tabular-nums">{r.watch_count} / {r.skip_count}</td>
-                    <td className="text-right tabular-nums">{inr(r.cost_inr)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat icon="📨" label="Digests sent" value={t.sent} />
+        <Stat icon="🎬" label="Titles recommended" value={t.delivered} sub="never repeated" />
+        <Stat icon="✅" label="You're watching" value={t.watching} sub={tapped ? `${t.not_for_me} marked "not for me"` : "tap ✅ in Telegram"} />
+        <Stat icon="🤖" label="AI cost so far" value={inr(t.cost)} sub="Gemini Flash" />
+      </div>
+
+      {/* Taste */}
+      <Card title="🎯 What I look for" action={<Link href="/settings" className="text-sm text-accent font-medium hover:underline">Edit</Link>}>
+        <div className="flex flex-wrap gap-2">
+          {profile.genres.map((g) => <span key={g} className="bg-accent-soft text-ink rounded-full px-3 py-1 text-sm">{GENRES[g]?.label ?? g}</span>)}
+          {profile.languages.map((l) => <span key={l} className="bg-stone-100 rounded-full px-3 py-1 text-sm">{LANGUAGES[l] ?? l}</span>)}
+        </div>
+        {profile.notes && <p className="text-sm text-muted mt-3">📝 {profile.notes}</p>}
       </Card>
     </div>
   );

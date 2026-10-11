@@ -56,6 +56,7 @@ create table if not exists items (
   delivered    boolean not null default false,
   message_id   int,                          -- Telegram message carrying its buttons
   position     int,                          -- its number in the digest (button label)
+  poster_path  text,                         -- TMDB poster, for the dashboard
   feedback     text,                         -- watching | not_for_me
   feedback_at  timestamptz
 );
@@ -74,3 +75,4 @@ create table if not exists catalogue (
 );
 
 alter table items add column if not exists position int;
+alter table items add column if not exists poster_path text;
