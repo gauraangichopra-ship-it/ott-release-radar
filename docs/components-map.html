@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OTT Release Radar Components Map</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #fff; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1c2541; width: 2000px; padding: 34px 30px 28px; }
+  h1 { text-align: center; font-size: 38px; font-weight: 800; color: #14213d; letter-spacing: -.3px; }
+  .sub { text-align: center; color: #5b6475; font-size: 18px; margin: 8px 0 24px; }
+  .wrap { position: relative; border-radius: 14px; overflow: hidden; }
+  .grid { display: grid; grid-template-columns: 200px repeat(5, 1fr) 1.2fr; }
+  .head { background: #16213e; color: #fff; font-weight: 700; font-size: 21px; text-align: center; padding: 20px 0; border-right: 1px solid #26335a; }
+  .actor { background: #16213e; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 12px; border-top: 1px solid #26335a; }
+  .actor b { font-size: 22px; }
+  .actor span { font-size: 15px; color: #c9cfdd; margin-top: 4px; }
+  .cell { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; padding: 20px 18px; min-height: 150px; }
+  .cell.out { padding-right: 36px; }
+  .l1 .cell { background: #ecf1fd; } .l2 .cell { background: #fffaea; } .l3 .cell { background: #fdeef3; }
+  .l4 .cell { background: #eef6f7; } .l5 .cell { background: #ebf7ee; }
+  .row { display: contents; }
+  .box { width: 100%; border: 2.5px solid; border-radius: 10px; padding: 14px 14px 13px; text-align: center; font-size: 15px; line-height: 1.45; background: #fff; position: relative; z-index: 2; }
+  .box h3 { font-size: 17px; margin-bottom: 5px; }
+  .n { position: absolute; top: -14px; left: -14px; width: 30px; height: 30px; border-radius: 50%; background: #16213e; color: #fff; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+  .purple { border-color: #7c6be0; background: #efedfd; } .blue { border-color: #4a7fe0; background: #eaf1fd; }
+  .green { border-color: #4caf6a; background: #e9f6ec; } .orange { border-color: #f0a830; background: #fff6e3; }
+  .pink { border-color: #e0458c; background: #fdeaf3; } .salmon { border-color: #e8604c; background: #fde9e5; }
+  .teal { border-color: #2b8a98; background: #e6f4f6; }
+  .gate { border-color: #0f3d2e; background: #123f30; color: #fff; } .gate i { color: #cfe8dc; }
+  .cut { border: 2px dashed #c53030; background: #fff0f0; color: #8f1f1f; font-size: 13.5px; padding: 8px 10px; margin-top: 9px; border-radius: 7px; text-align: left; }
+  .cut b { color: #c53030; }
+  i { color: #3d4559; } code { font-size: 13.5px; background: rgba(0,0,0,.06); padding: 0 4px; border-radius: 4px; }
+  svg.links { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  .bottom { display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; margin-top: 22px; }
+  .panel { border: 1.5px solid #d8dce6; border-radius: 12px; padding: 18px 22px; }
+  .panel h2 { font-size: 19px; margin-bottom: 12px; color: #14213d; }
+  .tg { background: #e7eef6; border-radius: 12px; padding: 14px; font-size: 15px; line-height: 1.5; }
+  .msg { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .msg + .msg { margin-top: 10px; }
+  .msg .t { font-weight: 700; } .msg .meta { color: #5b6475; font-size: 14px; }
+  .v { display: inline-block; font-weight: 800; font-size: 13px; padding: 1px 8px; border-radius: 5px; margin-right: 6px; }
+  .watch { background: #d8f2df; color: #1d6b35; } .skip { background: #f6dede; color: #8f1f1f; }
+  .btns { display: flex; gap: 8px; margin-top: 8px; } .btns span { flex: 1; text-align: center; background: #f0f4f8; border-radius: 7px; padding: 5px; font-size: 14px; color: #2b6cb0; font-weight: 600; }
+  .lbl { display: inline-block; font-size: 12.5px; font-weight: 700; color: #2b8a98; border: 1.5px solid #2b8a98; border-radius: 5px; padding: 0 6px; margin-left: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 7px 6px; border-bottom: 1px solid #eceef3; vertical-align: top; } td:first-child { font-weight: 700; width: 34%; color: #14213d; }
+  .legend { display: flex; justify-content: center; gap: 34px; margin-top: 18px; font-size: 16px; color: #3d4559; align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { width: 16px; height: 16px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<h1>OTT Release Radar — Components Map</h1>
+<p class="sub">Friday 6pm IST, one Telegram message: what's new this week on Netflix, Prime Video &amp; JioHotstar in India, filtered to Naman's taste. <b>Code filters · Gemini judges fit · Naman decides.</b></p>
+
+<div class="wrap" id="wrap">
+<div class="grid">
+  <div class="head">Actor</div><div class="head">Trigger</div><div class="head">Input</div><div class="head">Context</div><div class="head">Processing</div><div class="head">AI</div><div class="head">Output</div>
+
+  <!-- Lane 1: Naman -->
+  <div class="row l1">
+    <div class="actor"><b>Naman</b><span>Telegram · /settings</span></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="box blue" id="prof"><span class="n">0</span><h3>Sets his taste once</h3><b>thriller · sci-fi · indie drama</b><br><b>Hindi · English · Tamil</b><br>3 platforms · "never show me" list</div></div>
+    <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    <div class="cell out">
+      <div class="box gate" id="gate"><span class="n">8</span><h3>🔒 Human gate</h3>taps <b>"Watching"</b> or <b>"Not for me"</b> per title · <i>the bot only recommends; Naman picks</i></div>
+      <div class="box salmon" id="dig"><span class="n">7</span><h3>Friday digest arrives</h3>WATCH first, then 5 closest SKIPs, the rest in one line · see example below</div>
+    </div>
+  </div>
+
+  <!-- Lane 2: System -->
+  <div class="row l2">
+    <div class="actor"><b>App (code)</b><span>Next.js on Vercel · Mumbai</span></div>
+    <div class="cell"><div class="box purple" id="trig"><span class="n">1</span><h3>Vercel Cron</h3>Fri <b>18:00 IST</b><br><code>30 12 * * 5</code> (UTC)<br><i>+ "send test now" button</i></div></div>
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell"><div class="box green" id="proc"><span class="n">4</span><h3>Filter in code</h3>last 7 days · IN · 3 apps · language + genre match · drop kids titles, already-sent &amp; "never show" · label each title · fetch runtime / episodes<br><i>rules, not AI</i></div></div>
+    <div class="cell"></div>
+    <div class="cell out"><div class="box green" id="build"><span class="n">6</span><h3>Check &amp; send</h3>verdict ∈ {WATCH, SKIP} · synopsis ≤ 2 lines · split at 4,096 chars · empty week → "nothing new" · Gemini down → send without verdicts</div></div>
+  </div>
+
+  <!-- Lane 3: Gemini -->
+  <div class="row l3">
+    <div class="actor"><b>AI Model</b><span>Google Gemini Flash</span></div>
+    <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    <div class="cell"><div class="box pink" id="ai"><span class="n">5</span><h3>Judge the fit</h3>10 titles per call → JSON<br><b>verdict · score · reason</b><br>2-line synopsis from TMDB overview <i>only</i> · judges "indie"</div></div>
+    <div class="cell out"></div>
+  </div>
+
+  <!-- Lane 4: Memory -->
+  <div class="row l4">
+    <div class="actor"><b>Memory</b><span>Supabase Postgres · Mumbai</span></div>
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell"><div class="box teal" id="ctx"><span class="n">3</span><h3>Read memory</h3>taste profile · TMDB genre map · titles already sent · <b>last Friday's catalogue snapshot</b> · recent taps</div></div>
+    <div class="cell"></div><div class="cell"></div>
+    <div class="cell out"><div class="box teal" id="mem"><span class="n">9</span><h3>Write memory → next Friday</h3>sent titles · this week's snapshot · taps · run log: found → kept → sent · <b>Gemini tokens &amp; ₹</b> (shown on /runs)</div></div>
+  </div>
+
+  <!-- Lane 5: TMDB -->
+  <div class="row l5">
+    <div class="actor"><b>Movie &amp; TV DB</b><span>TMDB API · free</span></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="box blue" id="tmdb"><span class="n">2</span><h3>Fetch this week</h3>movies: digital release, region IN · TV: new air dates · <code>watch_region=IN</code> · Netflix · Prime · JioHotstar
+      <div class="cut"><b>✂ THE CUT (check 03):</b> no source has the exact day a title landed on an app in India. So each title gets an honest label: <b>Released this week</b> or <b>New on [app]</b> (vs last Friday's snapshot).</div></div></div>
+    <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell out"></div>
+  </div>
+</div>
+<svg class="links" id="links"></svg>
+</div>
+
+<div class="legend">
+  <span><i class="sw" style="background:#123f30"></i>Human decision point</span>
+  <span><i class="sw" style="border:2.5px solid #4caf6a;background:#e9f6ec"></i>Guardrail (code, not AI)</span>
+  <span><i class="sw" style="border:2.5px solid #2b8a98;background:#e6f4f6"></i>Memory</span>
+  <span><i class="sw" style="border:2px dashed #c53030;background:#fff0f0"></i>The Cut</span>
+  <span><svg width="34" height="10"><line x1="0" y1="5" x2="34" y2="5" stroke="#2c3e70" stroke-width="2.5" stroke-dasharray="6 4"/></svg>Data flow (numbers = order)</span>
+</div>
+
+<div class="bottom">
+  <div class="panel">
+    <h2>What Naman sees on Telegram <span style="font-weight:400;color:#5b6475;font-size:15px">(example format, made-up titles)</span></h2>
+    <div class="tg">
+      <div class="msg"><b>🍿 New This Week · 9–16 Oct</b> · 3 picks for you, 2 skips</div>
+      <div class="msg"><span class="v watch">WATCH</span><span class="t">The Quiet Signal</span> <span class="lbl">New on Netflix</span>
+        <div class="meta">Sci-fi · Thriller · Hindi · 8 episodes</div>
+        A radio engineer in Shimla picks up a broadcast from a station shut 30 years ago.<br>Each episode, the voice predicts a death in town — and it's never wrong.
+        <div class="meta" style="margin-top:4px">💡 Sci-fi + thriller in Hindi: two of your genres in a language you watch.</div>
+        <div class="btns"><span>✅ Watching</span><span>👎 Not for me</span></div></div>
+      <div class="msg"><span class="v skip">SKIP</span><span class="t">Wedding Season 3</span> <span class="lbl">Released this week</span>
+        <div class="meta">Romance · Comedy · English · 1h 52m · Prime Video</div>
+        A wedding planner books her ex's wedding.<br>Chaos follows across three cities.<div class="meta" style="margin-top:4px">💡 Romcom, none of your genres.</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Stack &amp; one-line jobs</h2>
+    <table>
+      <tr><td>Vercel Cron</td><td>Wakes the app every Friday, 12:30 UTC</td></tr>
+      <tr><td>TMDB API</td><td>What released / is streaming in India this week</td></tr>
+      <tr><td>Next.js (Vercel bom1)</td><td>Filters, labels, checks, formats. All the rules live here</td></tr>
+      <tr><td>Gemini Flash</td><td>Only job: WATCH / SKIP + reason + 2-line synopsis, 10 titles per call</td></tr>
+      <tr><td>Telegram Bot</td><td>Delivers the digest, collects taps</td></tr>
+      <tr><td>Supabase (Mumbai)</td><td>Profile, sent list, weekly snapshot, taps, run log &amp; cost</td></tr>
+      <tr><td>Cost / week</td><td>TMDB, Telegram, Vercel, Supabase free · Gemini &lt; ₹2</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+const wrap = document.getElementById('wrap'), svg = document.getElementById('links');
+const W = wrap.getBoundingClientRect();
+const R = id => { const r = document.getElementById(id).getBoundingClientRect();
+  return { l: r.left - W.left, r: r.right - W.left, t: r.top - W.top, b: r.bottom - W.top,
+           cx: (r.left + r.right) / 2 - W.left, cy: (r.top + r.bottom) / 2 - W.top }; };
+svg.innerHTML = '<defs><marker id="ah" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,6 L0,12 z" fill="#2c3e70"/></marker></defs>';
+const path = pts => { const p = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+  p.setAttribute('points', pts.map(q => q.join(',')).join(' '));
+  p.setAttribute('fill', 'none'); p.setAttribute('stroke', '#2c3e70'); p.setAttribute('stroke-width', '2.5');
+  p.setAttribute('stroke-dasharray', '7 5'); p.setAttribute('marker-end', 'url(#ah)'); svg.appendChild(p); };
+const [prof, gate, dig, trig, proc, build, ai, ctx, mem, tmdb] =
+  ['prof','gate','dig','trig','proc','build','ai','ctx','mem','tmdb'].map(R);
+const tx = tmdb.l - 16; path([[trig.cx, trig.b], [trig.cx, tmdb.t + 34], [tmdb.l - 2, tmdb.t + 34]]);   // 1 -> 2
+path([[prof.cx, prof.b], [prof.cx, ctx.cy], [ctx.l - 2, ctx.cy]]);                                       // 0 -> 3
+path([[ctx.cx, ctx.t], [ctx.cx, proc.cy], [proc.l - 2, proc.cy]]);                                       // 3 -> 4
+path([[tmdb.r, tmdb.t + 34], [proc.cx, tmdb.t + 34], [proc.cx, proc.b + 2]]);                            // 2 -> 4
+path([[proc.r, proc.cy], [ai.cx, proc.cy], [ai.cx, ai.t - 2]]);                                          // 4 -> 5
+const ox = build.l - 18; path([[ai.r, ai.cy], [ox, ai.cy], [ox, build.cy], [build.l - 2, build.cy]]);   // 5 -> 6
+path([[build.cx, build.t], [build.cx, dig.b + 2]]);                                                      // 6 -> 7
+path([[dig.cx, dig.t], [dig.cx, gate.b + 2]]);                                                           // 7 -> 8
+path([[build.cx, build.b], [build.cx, mem.t - 2]]);                                                      // 6 -> 9
+const rx = gate.r + 18; path([[gate.r, gate.cy], [rx, gate.cy], [rx, mem.cy], [mem.r + 2, mem.cy]]);     // 8 -> 9
+</script>
+</body>
+</html>
